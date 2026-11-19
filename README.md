@@ -10,7 +10,20 @@
 
 zero-crm 借鉴了 [IDURAR](https://github.com/idurar/idurar-erp-crm) 的 CRM 领域模型（客户/联系人/商机/报价思路）和 [EspoCRM](https://github.com/espocrm/espocrm) 的模块划分，聚焦中小企业真正每天在用的能力，用 **Node.js 22 内置的 `node:sqlite` + 原生前端**重写，做到极简交付。
 
-## 🚀 快速开始
+## 🖥️ 不想装 Node？用便携版（双击即用）
+
+如果你或你的用户不懂命令行，直接用打包好的**绿色便携版**：
+
+1. 从 [Releases 页面](https://github.com/remove-bit/zero-crm/releases) 下载 `zero-crm-便携版-vX.X.X.zip`（约 80 MB）
+2. 解压到任意文件夹（建议不要放 `C:\Program Files`）
+3. **双击 `启动CRM.vbs`** —— 服务自动启动，浏览器自动打开
+4. 用 `admin / admin123` 登录
+
+便携版自带 Node.js 运行时，**电脑无需安装任何软件**。数据保存在 `app\data` 文件夹，复制它即为备份。
+
+> 想自己打包？见本文末尾「打包便携版」一节。
+
+## 🚀 源码运行
 
 ### 前提
 只需 **Node.js ≥ 22.5**（因为用到了内置的 `node:sqlite`）。
@@ -135,6 +148,10 @@ zero-crm/
 ├── server.js        # HTTP 服务、路由、鉴权、API、报表、CSV、数据库管理
 ├── db.js            # 数据库 Schema、初始化、演示数据
 ├── backup.js        # 零依赖备份脚本（WAL 归并 + zip 打包 + 清理）
+├── build.js         # 便携版打包工具（下载 node.exe + 组装 + 打包 zip）
+├── build/
+│   └── 启动CRM.vbs  # Windows 双击启动器（无黑框 + 自动开浏览器）
+├── dist/            # 打包产物（git 忽略）
 ├── public/
 │   ├── index.html   # 页面骨架
 │   ├── style.css    # 样式
@@ -145,10 +162,28 @@ zero-crm/
 └── README.md
 ```
 
+## 📦 打包便携版（给自己或分发给用户）
+
+```bash
+node build.js
+```
+
+会生成 `dist/zero-crm-便携版-vX.X.X.zip`，内含：
+- `启动CRM.vbs` —— 用户双击这个即可（无黑框、自动开浏览器、自动检测端口占用）
+- `node.exe` —— 自带 Node 22 运行时，用户电脑零安装
+- `app\` —— 完整应用代码
+- `使用说明.txt` —— 面向最终用户的傻瓜式说明
+
+构建脚本首次会从 nodejs.org 下载官方 node.exe（约 33MB 压缩），之后复用 `build/node.exe` 缓存。整个打包过程零 npm 依赖。
+
+> 分发提示：把生成的 zip 发给用户即可；也可以放到 GitHub Releases 供下载。
+
 ## 🗺 路线图
 
 - [x] 数据库管理页面与只读 SQL 查询
 - [x] 一键备份脚本与 Web 备份
+- [x] Windows 便携版（双击即用）
+- [ ] macOS / Linux 启动器
 - [ ] 邮件/短信提醒通知
 - [ ] 自定义字段与自定义表单
 - [ ] 数据看板拖拽布局
