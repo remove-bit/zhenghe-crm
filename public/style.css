@@ -27,6 +27,8 @@ button,input,select,textarea{font-family:inherit;font-size:inherit}
 .brand-mark{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#2563eb,#3b82f6);
   color:#fff;font-size:28px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;
   box-shadow:0 6px 16px rgba(37,99,235,.35)}
+.brand-logo{display:block;width:64px;height:64px;object-fit:contain;margin:0 auto 14px}
+.sidebar-brand .brand-logo{width:40px;height:40px;margin:0;flex-shrink:0}
 .login-brand h1{font-size:26px;color:var(--text);letter-spacing:-.5px}
 .login-brand p{color:var(--text-soft);font-size:13px;margin-top:6px}
 .field{margin-bottom:18px}
