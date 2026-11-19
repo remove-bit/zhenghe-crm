@@ -1,6 +1,6 @@
 'use strict';
 /**
- * zero-crm 零依赖备份脚本
+ * 正合CRM 零依赖备份脚本
  *
  * 用法：
  *   node backup.js                 备份到 data/backups/，并打包成 zip
@@ -123,7 +123,7 @@ function backup() {
   const args = parseArgs(process.argv.slice(2));
   if (args.help) {
     console.log(`
-zero-crm 备份工具（零依赖）
+正合CRM 备份工具（零依赖）
 
   node backup.js                 备份到 data/backups/ 并打包 zip
   node backup.js --dir D:\\bak    指定输出目录
@@ -159,7 +159,7 @@ zero-crm 备份工具（零依赖）
 
   // 3. 写出备份
   const note = [
-    'zero-crm 数据库备份',
+    '正合CRM 数据库备份',
     '备份时间: ' + new Date().toLocaleString('zh-CN'),
     '包含文件: ' + files.map(f => f.name).join(', '),
     '',
@@ -170,7 +170,7 @@ zero-crm 备份工具（零依赖）
   ].join('\n');
   files.push({ name: '备份说明.txt', data: Buffer.from(note, 'utf8') });
 
-  const outFile = path.join(args.dir, `zero-crm-${ts}${args.zip ? '.zip' : '.db'}`);
+  const outFile = path.join(args.dir, `zhenghe-crm-${ts}${args.zip ? '.zip' : '.db'}`);
   if (args.zip) {
     fs.writeFileSync(outFile, makeZip(files));
   } else {
@@ -181,7 +181,7 @@ zero-crm 备份工具（零依赖）
   // 4. 清理旧备份
   if (args.keep > 0) {
     const all = fs.readdirSync(args.dir)
-      .filter(n => /^zero-crm-.*\.(zip|db)$/.test(n))
+      .filter(n => /^zhenghe-crm-.*\.(zip|db)$/.test(n))
       .map(n => ({ n, t: fs.statSync(path.join(args.dir, n)).mtimeMs }))
       .sort((a, b) => b.t - a.t);
     for (const old of all.slice(args.keep)) {

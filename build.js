@@ -1,11 +1,11 @@
 'use strict';
 /**
- * zero-crm 产品打包脚本（零 npm 依赖）
+ * 正合CRM 产品打包脚本（零 npm 依赖）
  *
  *   node build.js          生成 Windows 绿色便携包 zip
  *
  * 产物：
- *   dist/zero-crm-便携版-v1.0.0.zip
+ *   dist/正合CRM-便携版-v1.0.0.zip
  *     ├── 启动CRM.vbs      ← 用户双击这个
  *     ├── node.exe          ← 自带 Node 运行时
  *     ├── app\              ← 应用代码
@@ -26,7 +26,7 @@ const NODE_CACHE = path.join(BUILD_DIR, 'node.exe');
 const NODE_VERSION = 'v22.14.0';
 const NODE_URL = `https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-win-x64.zip`;
 const VERSION = require(path.join(ROOT, 'package.json')).version;
-const OUT_ZIP = path.join(DIST_DIR, `zero-crm-便携版-v${VERSION}.zip`);
+const OUT_ZIP = path.join(DIST_DIR, `正合CRM-便携版-v${VERSION}.zip`);
 
 /* ---------- ZIP（复用 backup.js 的 writer，这里内联一份避免耦合） ---------- */
 const CRC_TABLE = (() => {
@@ -112,7 +112,7 @@ async function ensureNode() {
 function download(url, redirects = 0) {
   if (redirects > 5) throw new Error('重定向过多');
   return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'zero-crm-build' } }, res => {
+    https.get(url, { headers: { 'User-Agent': 'zhenghe-crm-build' } }, res => {
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
         res.resume();
         return resolve(download(res.headers.location, redirects + 1));
@@ -165,7 +165,7 @@ function extractNodeFromZip(zipBuf) {
 /* ---------- 主流程 ---------- */
 async function main() {
   console.log('\n╔══════════════════════════════════════╗');
-  console.log('║  zero-crm 便携版打包工具             ║');
+  console.log('║  正合CRM 便携版打包工具              ║');
   console.log('╚══════════════════════════════════════╝\n');
   fs.mkdirSync(DIST_DIR, { recursive: true });
 
@@ -188,8 +188,8 @@ async function main() {
   add(path.join(ROOT, 'public', 'style.css'), 'app/public/style.css');
   add(path.join(ROOT, 'public', 'app.js'), 'app/public/app.js');
 
-  const readme = `zero-crm 便携版 v${VERSION}
-================================
+  const readme = `正合CRM 便携版 v${VERSION}
+===============================
 
 【使用方法】
 1. 把本压缩包解压到任意文件夹（建议不要放在 C:\Program Files）
@@ -210,8 +210,14 @@ async function main() {
 · 本软件自带 Node.js 运行时，无需在电脑上安装任何东西
 · 端口默认是 3000，如被占用请编辑启动CRM.vbs 中的 port 变量
 
+【正合产品系列】
+正合CRM —— 客户关系管理（当前产品）
+正合SRM —— 供应商管理（规划中）
+正合OA  —— 协同办公（规划中）
+理念：不多不少，正合所需
+
 【开源协议】MIT —— 自由使用
-项目地址：https://github.com/remove-bit/zero-crm
+项目地址：https://github.com/remove-bit/zhenghe-crm
 `;
   files.push({ name: '使用说明.txt', data: Buffer.from(readme, 'utf8') });
   console.log('  + 使用说明.txt');

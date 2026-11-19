@@ -1,7 +1,7 @@
 {
-  "name": "zero-crm",
+  "name": "zhenghe-crm",
   "version": "1.0.0",
-  "description": "中小企业开箱即用 CRM —— 零依赖，Node.js 内置 SQLite，一条命令启动",
+  "description": "正合CRM —— 不多不少，正合所需。中小企业开箱即用 CRM，零依赖，Node.js 内置 SQLite，一条命令启动",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -11,7 +11,7 @@
   "engines": {
     "node": ">=22.5.0"
   },
-  "keywords": ["crm", "客户关系管理", "zero-dependency", "sqlite", "中小企业", "开箱即用"],
+  "keywords": ["crm", "客户关系管理", "正合CRM", "zhenghe", "zero-dependency", "sqlite", "中小企业", "开箱即用"],
   "license": "MIT",
   "private": false
 }

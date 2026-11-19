@@ -1,20 +1,32 @@
-# zero-crm
+# 正合CRM（ZhengHe CRM）
 
-> 中小企业开箱即用的客户关系管理系统 · **零依赖 · 零配置 · 一条命令启动**
+> **不多不少，正合所需** · 中小企业开箱即用的客户关系管理系统 · **零依赖 · 零配置 · 一条命令启动**
 
 一个真正轻量的 CRM：不需要 Docker、不需要 MySQL/PostgreSQL/MongoDB、不需要 `npm install`，只需要 Node.js。数据存在本地 SQLite 文件里，完全属于你自己。
+
+### 关于「正合」产品系列
+
+「正合」是一套面向中小企业的轻量管理软件系列，坚持同一个理念——**不多不少，正合所需**：不做堆功能的重型 ERP，只把企业每天真正要用的能力做到极致简单。
+
+| 产品 | 定位 | 状态 |
+|------|------|------|
+| **正合CRM** | 客户关系管理 | ✅ 已发布（本仓库） |
+| 正合SRM | 供应商管理 | 🚧 规划中 |
+| 正合OA | 协同办公 | 🚧 规划中 |
+
+各产品共享「零依赖、开箱即用、数据自主」的设计原则，可独立部署，未来可数据互通。
 
 ## ✨ 为什么做这个
 
 市面上的开源 CRM（SuiteCRM、EspoCRM、IDURAR、Frappe CRM 等）功能强大，但对中小企业来说太重了——要装 PHP/数据库/缓存，光部署就能劝退一半人。
 
-zero-crm 借鉴了 [IDURAR](https://github.com/idurar/idurar-erp-crm) 的 CRM 领域模型（客户/联系人/商机/报价思路）和 [EspoCRM](https://github.com/espocrm/espocrm) 的模块划分，聚焦中小企业真正每天在用的能力，用 **Node.js 22 内置的 `node:sqlite` + 原生前端**重写，做到极简交付。
+正合CRM 借鉴了 [IDURAR](https://github.com/idurar/idurar-erp-crm) 的 CRM 领域模型（客户/联系人/商机/报价思路）和 [EspoCRM](https://github.com/espocrm/espocrm) 的模块划分，聚焦中小企业真正每天在用的能力，用 **Node.js 22 内置的 `node:sqlite` + 原生前端**重写，做到极简交付。
 
 ## 🖥️ 不想装 Node？用便携版（双击即用）
 
 如果你或你的用户不懂命令行，直接用打包好的**绿色便携版**：
 
-1. 从 [Releases 页面](https://github.com/remove-bit/zero-crm/releases) 下载 `zero-crm-便携版-vX.X.X.zip`（约 80 MB）
+1. 从 [Releases 页面](https://github.com/remove-bit/zhenghe-crm/releases) 下载 `正合CRM-便携版-vX.X.X.zip`（约 80 MB）
 2. 解压到任意文件夹（建议不要放 `C:\Program Files`）
 3. **双击 `启动CRM.vbs`** —— 服务自动启动，浏览器自动打开
 4. 用 `admin / admin123` 登录
@@ -30,8 +42,8 @@ zero-crm 借鉴了 [IDURAR](https://github.com/idurar/idurar-erp-crm) 的 CRM �
 
 ### 启动
 ```bash
-git clone https://github.com/<你的用户名>/zero-crm.git
-cd zero-crm
+git clone https://github.com/<你的用户名>/zhenghe-crm.git
+cd zhenghe-crm
 node server.js
 ```
 
@@ -121,7 +133,7 @@ node backup.js --no-zip              # 只复制 db 不打包
 
 **③ 定时自动备份（crontab / 任务计划程序）**
 ```cron
-0 2 * * * cd /path/to/zero-crm && node backup.js --keep 7
+0 2 * * * cd /path/to/zhenghe-crm && node backup.js --keep 7
 ```
 
 ### 数据库管理页面（仅管理员）
@@ -144,7 +156,7 @@ node backup.js --no-zip              # 只复制 db 不打包
 ## 📁 目录结构
 
 ```
-zero-crm/
+zhenghe-crm/
 ├── server.js        # HTTP 服务、路由、鉴权、API、报表、CSV、数据库管理
 ├── db.js            # 数据库 Schema、初始化、演示数据
 ├── backup.js        # 零依赖备份脚本（WAL 归并 + zip 打包 + 清理）
@@ -168,7 +180,7 @@ zero-crm/
 node build.js
 ```
 
-会生成 `dist/zero-crm-便携版-vX.X.X.zip`，内含：
+会生成 `dist/正合CRM-便携版-vX.X.X.zip`，内含：
 - `启动CRM.vbs` —— 用户双击这个即可（无黑框、自动开浏览器、自动检测端口占用）
 - `node.exe` —— 自带 Node 22 运行时，用户电脑零安装
 - `app\` —— 完整应用代码
@@ -183,6 +195,8 @@ node build.js
 - [x] 数据库管理页面与只读 SQL 查询
 - [x] 一键备份脚本与 Web 备份
 - [x] Windows 便携版（双击即用）
+- [ ] 正合SRM · 供应商管理（系列新品）
+- [ ] 正合OA · 协同办公（系列新品）
 - [ ] macOS / Linux 启动器
 - [ ] 邮件/短信提醒通知
 - [ ] 自定义字段与自定义表单
@@ -200,4 +214,4 @@ node build.js
 
 ---
 
-**zero-crm** — 让中小企业也能用上简单好用的客户管理系统。
+**正合CRM** — 不多不少，正合所需。让中小企业也能用上简单好用的客户管理系统。

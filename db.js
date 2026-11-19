@@ -1,6 +1,6 @@
 'use strict';
 /**
- * zero-crm 数据层
+ * 正合CRM 数据层
  * 基于 Node.js 22 内置 node:sqlite —— 零外部依赖、零安装
  */
 const { DatabaseSync } = require('node:sqlite');

@@ -1,6 +1,6 @@
 'use strict';
 /**
- * zero-crm —— 中小企业开箱即用 CRM
+ * 正合CRM —— 中小企业开箱即用 CRM · 不多不少，正合所需
  * 零依赖：仅使用 Node.js 22 内置模块（http / crypto / fs / path / node:sqlite）
  *
  * 启动：node server.js      然后访问 http://localhost:3000
@@ -484,7 +484,7 @@ async function handleApi(req, res, url) {
       const buf = fs.readFileSync(path.join(__dirname, 'data', 'crm.db'));
       audit(user, 'export_db', 'db', '导出整库');
       const ts = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 19);
-      res.setHeader('Content-Disposition', `attachment; filename="zero-crm-${ts}.db"`);
+      res.setHeader('Content-Disposition', `attachment; filename="zhenghe-crm-${ts}.db"`);
       return send(res, 200, buf, 'application/octet-stream');
     }
 
@@ -494,7 +494,7 @@ async function handleApi(req, res, url) {
       const dir = path.join(__dirname, 'data', 'backups');
       fs.mkdirSync(dir, { recursive: true });
       const ts = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 19);
-      const file = `zero-crm-${ts}.db`;
+      const file = `zhenghe-crm-${ts}.db`;
       fs.copyFileSync(path.join(__dirname, 'data', 'crm.db'), path.join(dir, file));
       audit(user, 'backup', 'db', '备份 ' + file);
       return ok(res, { file, bytes: fs.statSync(path.join(dir, file)).size });
@@ -585,7 +585,7 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, HOST, () => {
   console.log('\n  ╔═══════════════════════════════════════════╗');
-  console.log('  ║        zero-crm  中小企业 CRM 系统        ║');
+  console.log('  ║         正合CRM · 中小企业客户管理          ║');
   console.log('  ╚═══════════════════════════════════════════╝');
   console.log(`  ✦ 访问地址:  http://localhost:${PORT}`);
   console.log('  ✦ 默认账号:  admin / admin123');

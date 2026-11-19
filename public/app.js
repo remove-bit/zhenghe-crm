@@ -1,5 +1,5 @@
 'use strict';
-/* zero-crm 前端单页应用 —— 原生 JS，零依赖 */
+/* 正合CRM 前端单页应用 —— 原生 JS，零依赖 */
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
