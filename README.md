@@ -91,6 +91,35 @@ PORT=8080 CRM_SECRET="my-random-secret" node server.js
 - `data/` 已在 `.gitignore` 中排除，不会被提交到仓库。
 - 建议：定期备份 `data/` 目录；生产环境务必设置 `CRM_SECRET` 环境变量。
 
+### 备份的三种方式
+
+**① 命令行脚本（推荐，可配合定时任务）**
+```bash
+npm run backup
+# 或
+node backup.js --keep 5              # 只保留最近 5 份
+node backup.js --dir D:\backups      # 指定备份目录
+node backup.js --no-zip              # 只复制 db 不打包
+```
+脚本会自动归并 WAL、把 `crm.db` 打包成带时间戳的 zip（内含数据库、密钥、恢复说明），并按数量清理旧备份。零依赖，Windows/Linux/Mac 通用。
+
+**② Web 界面（管理员）**
+登录后进入左侧「数据库」页面，点「一键备份」在服务端生成备份，或点「导出整库」直接下载 `.db` 文件。
+
+**③ 定时自动备份（crontab / 任务计划程序）**
+```cron
+0 2 * * * cd /path/to/zero-crm && node backup.js --keep 7
+```
+
+### 数据库管理页面（仅管理员）
+
+左侧「数据库」页面提供：
+- **表浏览器**：查看全部 8 张表的数据（用户密码已自动脱敏）
+- **只读 SQL 查询器**：执行 `SELECT` / `WITH` / `PRAGMA table_info`，结果最多返回 1000 行；所有写操作（INSERT/UPDATE/DELETE/DROP 等）会被拒绝
+- **导出整库 / 一键备份**：一键完成
+
+> 安全说明：SQL 查询严格只读，且仅管理员可访问，避免误操作破坏数据。所有查询与备份操作都会记入操作日志。
+
 ## 🛠 技术栈
 
 - **后端**：Node.js 内置 `http` + `node:sqlite` + `crypto`（零 npm 依赖）
@@ -103,13 +132,14 @@ PORT=8080 CRM_SECRET="my-random-secret" node server.js
 
 ```
 zero-crm/
-├── server.js        # HTTP 服务、路由、鉴权、API、报表、CSV
+├── server.js        # HTTP 服务、路由、鉴权、API、报表、CSV、数据库管理
 ├── db.js            # 数据库 Schema、初始化、演示数据
+├── backup.js        # 零依赖备份脚本（WAL 归并 + zip 打包 + 清理）
 ├── public/
 │   ├── index.html   # 页面骨架
 │   ├── style.css    # 样式
-│   └── app.js       # 前端单页应用逻辑
-├── data/            # 运行时生成（数据库 + 密钥）
+│   └── app.js       # 前端单页应用逻辑（含数据库管理页）
+├── data/            # 运行时生成（数据库 + 密钥 + backups/）
 ├── package.json
 ├── LICENSE          # MIT
 └── README.md
@@ -117,6 +147,8 @@ zero-crm/
 
 ## 🗺 路线图
 
+- [x] 数据库管理页面与只读 SQL 查询
+- [x] 一键备份脚本与 Web 备份
 - [ ] 邮件/短信提醒通知
 - [ ] 自定义字段与自定义表单
 - [ ] 数据看板拖拽布局

@@ -422,6 +422,85 @@ async function handleApi(req, res, url) {
   if (pathname === '/api/stats/sales') return ok(res, statsSales(user));
   if (pathname === '/api/stats/trend') return ok(res, statsTrend(user));
 
+  /* ---------- 数据库管理（仅管理员）---------- */
+  if (pathname.startsWith('/api/db/')) {
+    if (user.role !== 'admin') return fail(res, 403, '仅管理员可访问数据库管理');
+
+    // 表清单
+    if (pathname === '/api/db/tables' && method === 'GET') {
+      const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all();
+      const list = tables.map(t => ({
+        name: t.name,
+        rows: db.prepare(`SELECT COUNT(*) n FROM "${t.name}"`).get().n,
+      }));
+      return ok(res, list);
+    }
+
+    // 浏览表数据
+    const tm = pathname.match(/^\/api\/db\/table\/(\w+)$/);
+    if (tm && method === 'GET') {
+      const table = tm[1];
+      if (!db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?").get(table)) {
+        return fail(res, 404, '表不存在');
+      }
+      const limit = Math.min(Number(query.limit || 100), 1000);
+      const offset = Math.max(Number(query.offset || 0), 0);
+      const rows = db.prepare(`SELECT * FROM "${table}" LIMIT ? OFFSET ?`).all(limit, offset);
+      const total = db.prepare(`SELECT COUNT(*) n FROM "${table}"`).get().n;
+      const clean = rows.map(r => {
+        const o = { ...r };
+        if (table === 'users') { delete o.password_hash; delete o.salt; }
+        return o;
+      });
+      const columns = clean.length ? Object.keys(clean[0])
+        : db.prepare(`PRAGMA table_info("${table}")`).all().map(c => c.name).filter(c => !(table === 'users' && ['password_hash', 'salt'].includes(c)));
+      return ok(res, { columns, rows: clean, total, limit, offset });
+    }
+
+    // 只读 SQL 查询
+    if (pathname === '/api/db/query' && method === 'POST') {
+      const d = await body(req);
+      const sql = String(d.sql || '').trim().replace(/;+\s*$/, '');
+      if (!/^(select|with)\b/i.test(sql) && !/^pragma\s+table_info\b/i.test(sql)) {
+        return fail(res, 400, '仅支持 SELECT / WITH / PRAGMA table_info 只读查询');
+      }
+      if (/\b(insert|update|delete|drop|alter|create|attach|detach|replace|vacuum|reindex|writable_schema)\b/i.test(sql)) {
+        return fail(res, 400, '检测到写操作，已拒绝执行');
+      }
+      try {
+        const t0 = Date.now();
+        const rows = db.prepare(sql).all().slice(0, 1000);
+        const columns = rows.length ? Object.keys(rows[0]) : [];
+        audit(user, 'sql_query', 'db', sql.slice(0, 200));
+        return ok(res, { columns, rows, elapsed: Date.now() - t0, truncated: rows.length >= 1000 });
+      } catch (e) {
+        return fail(res, 400, 'SQL 执行失败: ' + e.message);
+      }
+    }
+
+    // 导出整库（先归并 WAL 再下载）
+    if (pathname === '/api/db/export' && method === 'GET') {
+      db.exec('PRAGMA wal_checkpoint(TRUNCATE)');
+      const buf = fs.readFileSync(path.join(__dirname, 'data', 'crm.db'));
+      audit(user, 'export_db', 'db', '导出整库');
+      const ts = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 19);
+      res.setHeader('Content-Disposition', `attachment; filename="zero-crm-${ts}.db"`);
+      return send(res, 200, buf, 'application/octet-stream');
+    }
+
+    // 服务端一键备份
+    if (pathname === '/api/db/backup' && method === 'POST') {
+      db.exec('PRAGMA wal_checkpoint(TRUNCATE)');
+      const dir = path.join(__dirname, 'data', 'backups');
+      fs.mkdirSync(dir, { recursive: true });
+      const ts = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 19);
+      const file = `zero-crm-${ts}.db`;
+      fs.copyFileSync(path.join(__dirname, 'data', 'crm.db'), path.join(dir, file));
+      audit(user, 'backup', 'db', '备份 ' + file);
+      return ok(res, { file, bytes: fs.statSync(path.join(dir, file)).size });
+    }
+  }
+
   /* 审计日志 */
   if (pathname === '/api/audit' && isManager(user)) {
     return ok(res, db.prepare('SELECT * FROM audit_logs ORDER BY id DESC LIMIT 200').all());

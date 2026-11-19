@@ -20,7 +20,7 @@ const STATE = {
 const VIEW_TITLES = {
   dashboard: '数据概览', tasks: '待办任务', customers: '客户管理', contacts: '联系人',
   leads: '线索管理', opportunities: '商机管理', funnel: '销售漏斗', activities: '跟进记录',
-  reports: '统计报表', users: '用户管理',
+  reports: '统计报表', users: '用户管理', database: '数据库管理',
 };
 
 /* 字典 */
@@ -197,6 +197,7 @@ async function render() {
       case 'activities': await renderActivities(content); break;
       case 'reports': await renderReports(content); break;
       case 'users': await renderUsers(content); break;
+      case 'database': await renderDatabase(content); break;
       default: content.innerHTML = '<div class="empty">页面不存在</div>';
     }
     await updateTaskBadge();
@@ -885,6 +886,74 @@ function openUserForm(id) {
     try {
       if (u) await put('/users/' + u.id, d); else await post('/users', d);
       m.close(); toast('已保存'); await loadUsers(); render();
+    } catch (e) { toast(e.message, 'error'); }
+  };
+}
+
+/* ---------------- 数据库管理（仅管理员） ---------------- */
+const TABLE_LABELS = {
+  users: '用户账号', customers: '客户', contacts: '联系人', leads: '线索',
+  opportunities: '商机', activities: '跟进记录', tasks: '待办任务', audit_logs: '操作日志',
+};
+async function renderDatabase(el) {
+  if (STATE.user.role !== 'admin') { el.innerHTML = '<div class="empty">无权访问</div>'; return; }
+  const tables = await get('/db/tables');
+  const active = STATE.filters.dbTable || 'customers';
+  const view = await get(`/db/table/${active}?limit=100`);
+
+  el.innerHTML = `
+    <div class="page-head"><div><h2>数据库管理</h2><p>直接查看底层数据、执行只读查询、导出与备份 · 仅管理员可用</p></div>
+      <div class="head-actions">
+        <button class="btn btn-ghost" id="db-export">⇩ 导出整库</button>
+        <button class="btn btn-primary" id="db-backup">▣ 一键备份</button>
+      </div></div>
+    <div style="display:grid;grid-template-columns:220px 1fr;gap:20px;align-items:start">
+      <div class="card"><div class="card-header"><h3>数据表</h3><span style="font-size:11px;color:var(--text-soft)">${tables.length} 张</span></div>
+        <div class="card-body" style="padding:8px">
+          ${tables.map(t => `<div class="db-table-item ${t.name === active ? 'active' : ''}" data-table="${esc(t.name)}">
+            <span>${esc(TABLE_LABELS[t.name] || t.name)}</span><span class="db-table-count">${t.rows}</span></div>`).join('')}
+        </div></div>
+      <div>
+        <div class="card" style="margin-bottom:18px"><div class="card-header"><h3>只读 SQL 查询</h3>
+          <span style="font-size:11px;color:var(--text-soft)">仅允许 SELECT / WITH / PRAGMA table_info</span></div>
+          <div class="card-body">
+            <div style="display:flex;gap:8px"><textarea id="sql-input" rows="2" placeholder="SELECT * FROM customers WHERE level='A'" style="flex:1;font-family:monospace">SELECT * FROM ${esc(active)} LIMIT 20</textarea>
+              <button class="btn btn-primary" id="run-sql" style="align-self:stretch">执行</button></div>
+            <div id="sql-result"></div>
+          </div></div>
+        <div class="card"><div class="card-header"><h3>${esc(TABLE_LABELS[active] || active)} · 数据浏览</h3>
+          <span style="font-size:12px;color:var(--text-soft)">共 ${view.total} 行</span></div>
+          <div class="table-wrap"><table><thead><tr>${view.columns.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>
+            ${view.rows.length ? view.rows.map(r => `<tr>${view.columns.map(c => `<td>${esc(r[c])}</td>`).join('')}</tr>`).join('')
+              : `<tr><td colspan="${view.columns.length || 1}"><div class="empty">暂无数据</div></td></tr>`}
+          </tbody></table></div>
+          ${view.total > view.limit ? `<div style="padding:12px 20px;font-size:12px;color:var(--text-soft)">仅显示前 ${view.limit} 行，完整数据请用 SQL 查询或导出整库</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+
+  $$('.db-table-item', el).forEach(item => item.onclick = () => {
+    STATE.filters.dbTable = item.dataset.table;
+    renderDatabase(el);
+  });
+  $('#run-sql', el).onclick = async () => {
+    const sql = $('#sql-input', el).value.trim();
+    const box = $('#sql-result', el);
+    box.innerHTML = '<div style="padding:12px;color:var(--text-soft);font-size:12px">执行中...</div>';
+    try {
+      const r = await post('/db/query', { sql });
+      box.innerHTML = `<div style="margin-top:12px;padding:10px 12px;background:var(--success-light);border-radius:6px;font-size:12px;color:var(--success)">✓ 返回 ${r.rows.length} 行${r.truncated ? '（已截断至 1000 行）' : ''} · 耗时 ${r.elapsed}ms</div>
+        ${r.rows.length ? `<div class="table-wrap" style="margin-top:10px;max-height:320px;overflow:auto"><table><thead><tr>${r.columns.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>
+          ${r.rows.map(row => `<tr>${r.columns.map(c => `<td>${esc(row[c])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : ''}`;
+    } catch (e) {
+      box.innerHTML = `<div style="margin-top:12px;padding:10px 12px;background:var(--danger-light);border-radius:6px;font-size:12px;color:var(--danger)">✕ ${esc(e.message)}</div>`;
+    }
+  };
+  $('#db-export', el).onclick = () => { window.location.href = '/api/db/export'; toast('整库导出已开始'); };
+  $('#db-backup', el).onclick = async () => {
+    try {
+      const r = await post('/db/backup', {});
+      toast('备份成功：' + r.file + '（' + (r.bytes / 1024).toFixed(0) + ' KB）');
     } catch (e) { toast(e.message, 'error'); }
   };
 }
