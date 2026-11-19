@@ -1,0 +1,16 @@
+{
+  "name": "zero-crm",
+  "version": "1.0.0",
+  "description": "中小企业开箱即用 CRM —— 零依赖，Node.js 内置 SQLite，一条命令启动",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "keywords": ["crm", "客户关系管理", "zero-dependency", "sqlite", "中小企业", "开箱即用"],
+  "license": "MIT",
+  "private": false
+}

@@ -1,0 +1,15 @@
+# 运行时数据（首次启动自动生成，切勿提交真实业务数据）
+data/
+*.db
+*.db-wal
+*.db-shm
+data/secret
+
+# 系统文件
+.DS_Store
+Thumbs.db
+*.log
+
+# 编辑器
+.vscode/
+.idea/
