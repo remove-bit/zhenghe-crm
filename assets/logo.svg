@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="正合 Logo">
+  <title>正合 ZhengHe</title>
+  <g fill="#003ca8">
+  <rect x="58" y="71" width="182" height="61"/>
+  <rect x="58" y="132" width="118" height="1"/>
+  <rect x="179" y="132" width="61" height="123"/>
+  <rect x="395" y="132" width="1" height="6"/>
+  <rect x="58" y="133" width="60" height="308"/>
+  <rect x="334" y="134" width="1" height="2"/>
+  <rect x="179" y="255" width="58" height="1"/>
+  <rect x="238" y="255" width="2" height="1"/>
+  <rect x="274" y="256" width="1" height="1"/>
+  <rect x="179" y="318" width="61" height="123"/>
+  <rect x="118" y="379" width="54" height="62"/>
+  <rect x="393" y="379" width="1" height="1"/>
+  <rect x="172" y="380" width="7" height="61"/>
+  </g>
+  <g fill="#2670cd">
+  <rect x="274" y="71" width="182" height="61"/>
+  <rect x="274" y="132" width="120" height="1"/>
+  <rect x="396" y="132" width="60" height="309"/>
+  <rect x="274" y="133" width="61" height="1"/>
+  <rect x="274" y="134" width="60" height="60"/>
+  <rect x="334" y="136" width="1" height="58"/>
+  <rect x="395" y="138" width="1" height="303"/>
+  <rect x="275" y="256" width="60" height="185"/>
+  <rect x="274" y="257" width="1" height="184"/>
+  <rect x="335" y="379" width="58" height="62"/>
+  <rect x="394" y="379" width="1" height="62"/>
+  <rect x="393" y="380" width="1" height="61"/>
+  </g>
+</svg>
