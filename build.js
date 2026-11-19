@@ -184,9 +184,12 @@ async function main() {
   console.log('  + node.exe');
   add(path.join(ROOT, 'server.js'), 'app/server.js');
   add(path.join(ROOT, 'db.js'), 'app/db.js');
-  add(path.join(ROOT, 'public', 'index.html'), 'app/public/index.html');
-  add(path.join(ROOT, 'public', 'style.css'), 'app/public/style.css');
-  add(path.join(ROOT, 'public', 'app.js'), 'app/public/app.js');
+  // 自动收集 public/ 下全部静态资源（含 logo、favicon 等，避免新增文件遗漏）
+  const publicDir = path.join(ROOT, 'public');
+  for (const name of fs.readdirSync(publicDir)) {
+    const disk = path.join(publicDir, name);
+    if (fs.statSync(disk).isFile()) add(disk, 'app/public/' + name);
+  }
 
   const readme = `正合CRM 便携版 v${VERSION}
 ===============================
